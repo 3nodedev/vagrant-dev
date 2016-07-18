@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure(2) do |config|
-  config.vm.box = 'boxcutter/ubuntu1604'
+  config.vm.box = 'boxcutter/ubuntu1404'
   config.ssh.forward_agent = true
 
   config.ssh.shell = %{bash -c 'BASH_ENV=/etc/profile exec bash'}
@@ -18,7 +18,8 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 5857, host: 5858
 
   config.vm.hostname = "vagrant-dev"
-  config.vm.synced_folder "data", "/data", create: true, type: "nfs"
+  config.vm.synced_folder "data", "/data", create: true, nfs: true,
+    mount_options: %w{nolock,vers=3,udp,noatime,actimeo=1}
 
   host = RbConfig::CONFIG['host_os']
   if host =~ /darwin/

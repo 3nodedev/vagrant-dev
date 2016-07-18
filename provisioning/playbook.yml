@@ -5,12 +5,9 @@
   gather_facts: no
 
   vars:
-   # pg_hba.conf entries
    pg_hba_additions:
     - host all all 0.0.0.0/0 trust
-   # postgresql.conf listen_all
    pg_listen_all: True
-   # node version
    node_version: v4.4.3
 
   tasks:
@@ -37,15 +34,6 @@
         - curl
         - build-essential
         - libssl-dev
-        # - nginx
-        # - nodejs
-        # - npm
-
-  # - name: Create required symlinks - point "node" to "nodejs" bin
-  #   file:
-  #     src: /usr/bin/nodejs
-  #     dest: /usr/bin/node
-  #     state: link
 
   - name: Download nvm
     shell: curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
@@ -96,11 +84,7 @@
         callback_plugins   = /usr/share/ansible/plugins/callback
 
   - name: Install Grunt and Mocha
-    shell: '[ -s "$NVM_DIR/nvm.sh"  ] && . "$NVM_DIR/nvm.sh" && npm i -g grunt-cli mocha ember-cli'
-    # npm: name={{ item }} state=present global=yes
-    # with_items:
-    #   - grunt-cli
-    #   - mocha
+    shell: '[ -s "$NVM_DIR/nvm.sh"  ] && . "$NVM_DIR/nvm.sh" && npm i -g grunt-cli mocha'
     become: true
     become_user: vagrant
     environment:
