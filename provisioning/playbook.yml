@@ -11,13 +11,12 @@
    # postgresql.conf listen_all
    pg_listen_all: True
 
-  pre_tasks:
-    - name: 'install python2'
-      raw: sudo apt-get -y install python-simplejson
-
   tasks:
   - name: apt cache
     apt: update_cache=yes cache_valid_time=86400
+
+  - name: install python
+    apt: name='python-simplejson'
 
   - name: install common
     apt: name='software-properties-common'
@@ -31,6 +30,7 @@
     apt: name={{item}}
     with_items:
         - ansible
+        - git
         - postgresql
         - nginx
         - nodejs

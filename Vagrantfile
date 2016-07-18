@@ -2,13 +2,13 @@
 # vi: set ft=ruby :
 
 Vagrant.configure(2) do |config|
-  config.vm.box = 'ubuntu/xenial64'
+  config.vm.box = 'boxcutter/ubuntu1604'
   config.ssh.forward_agent = true
 
   config.ssh.shell = %{bash -c 'BASH_ENV=/etc/profile exec bash'}
 
   # Required for NFS to work, pick any local IP
-  config.vm.network :private_network, ip: '172.28.128.6', hostsupdater: 'skip'
+  # config.vm.network :private_network, ip: '172.28.128.6', hostsupdater: 'skip'
 
   config.vm.network "forwarded_port", guest: 80, host: 8080
   config.vm.network "forwarded_port", guest: 443, host: 44300
@@ -17,7 +17,7 @@ Vagrant.configure(2) do |config|
   config.vm.network "forwarded_port", guest: 5857, host: 5858
 
   config.vm.hostname = "vagrant-dev"
-  config.vm.synced_folder "data", "/data", create: true, type: "nfs"
+  config.vm.synced_folder "data", "/data", create: true #, type: "nfs"
 
   host = RbConfig::CONFIG['host_os']
   if host =~ /darwin/
@@ -44,7 +44,7 @@ Vagrant.configure(2) do |config|
   # VMware Workstation/Fusion settings
   ['vmware_fusion', 'vmware_workstation'].each do |provider|
     config.vm.provider provider do |vmw, override|
-      override.vm.box = 'puppetlabs/ubuntu-16.04-64-puppet'
+      # override.vm.box = 'puppetlabs/ubuntu-16.04-64-puppet'
 
       vmw.vmx['memsize'] = memory
       vmw.vmx['numvcpus'] = cpus
@@ -60,11 +60,11 @@ Vagrant.configure(2) do |config|
 
   # Configure vm to use host ssh keys
 
-  config.vm.provision "shell", inline: <<-SHELL
-    sudo apt-get update
-    sudo apt-get install -y git
-    mkdir -p ~/.ssh
-    chmod 700 ~/.ssh
-    ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-  SHELL
+  # config.vm.provision "shell", inline: <<-SHELL
+  #   sudo apt-get update
+  #   sudo apt-get install -y git
+  #   mkdir -p ~/.ssh
+  #   chmod 700 ~/.ssh
+  #   ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+  # SHELL
 end
