@@ -10,6 +10,8 @@
     - host all all 0.0.0.0/0 trust
    # postgresql.conf listen_all
    pg_listen_all: True
+   # node version
+   node_version: v4.4.3
 
   tasks:
   - name: apt cache
@@ -32,15 +34,50 @@
         - ansible
         - git
         - postgresql
-        - nginx
-        - nodejs
-        - npm
+        - curl
+        - build-essential
+        - libssl-dev
+        # - nginx
+        # - nodejs
+        # - npm
 
-  - name: Create required symlinks - point "node" to "nodejs" bin
-    file:
-      src: /usr/bin/nodejs
-      dest: /usr/bin/node
-      state: link
+  # - name: Create required symlinks - point "node" to "nodejs" bin
+  #   file:
+  #     src: /usr/bin/nodejs
+  #     dest: /usr/bin/node
+  #     state: link
+
+  - name: Download nvm
+    shell: curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
+    become: true
+    become_user: vagrant
+    register: nvm_installed
+
+  - name: Show nvm_installed output
+    debug:
+      msg: '{{nvm_installed}}'
+
+
+  - name : source bash profiles
+    shell: source ~/.bashrc
+    args:
+      executable: /bin/bash
+    register: sourced
+    when : nvm_installed | success
+    become: true
+    become_user: vagrant
+
+  - name: Show sourced output
+    debug:
+      msg: '{{sourced}}'
+
+  - name: Install specified node version using the nvm command and set it as default
+    shell: '[ -s "$NVM_DIR/nvm.sh"  ] && . "$NVM_DIR/nvm.sh" && nvm install {{ node_version }} && nvm alias default {{ node_version }}'
+    when: sourced|success
+    become: true
+    become_user: vagrant
+    environment:
+      NVM_DIR: /home/vagrant/.nvm
 
   - name: Add a directory for node Ansible callback plugins
     file: path=/usr/share/ansible/plugins/callback state=directory
@@ -59,7 +96,12 @@
         callback_plugins   = /usr/share/ansible/plugins/callback
 
   - name: Install Grunt and Mocha
-    npm: name={{ item }} state=present global=yes
-    with_items:
-      - grunt-cli
-      - mocha
+    shell: '[ -s "$NVM_DIR/nvm.sh"  ] && . "$NVM_DIR/nvm.sh" && npm i -g grunt-cli mocha ember-cli'
+    # npm: name={{ item }} state=present global=yes
+    # with_items:
+    #   - grunt-cli
+    #   - mocha
+    become: true
+    become_user: vagrant
+    environment:
+      NVM_DIR: /home/vagrant/.nvm
