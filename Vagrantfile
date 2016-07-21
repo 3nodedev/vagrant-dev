@@ -8,14 +8,16 @@ Vagrant.configure(2) do |config|
   config.ssh.shell = %{bash -c 'BASH_ENV=/etc/profile exec bash'}
 
   # Required for NFS to work, pick any local IP
-  config.vm.network :private_network, ip: '172.28.128.6', hostsupdater: 'skip'
+  config.vm.network :private_network, type: "dhcp"
 
-  config.vm.network "forwarded_port", guest: 80, host: 8080
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
   config.vm.network "forwarded_port", guest: 4200, host: 4200
   config.vm.network "forwarded_port", guest: 443, host: 44300
   config.vm.network "forwarded_port", guest: 5432, host: 5433
   config.vm.network "forwarded_port", guest: 3001, host: 3001
   config.vm.network "forwarded_port", guest: 5857, host: 5858
+  config.vm.network "forwarded_port", guest: 49152, host: 49152
+  config.vm.network "forwarded_port", guest: 35729, host: 35729
 
   config.vm.hostname = "vagrant-dev"
   config.vm.synced_folder "data", "/data", create: true, nfs: true,
@@ -23,10 +25,10 @@ Vagrant.configure(2) do |config|
 
   host = RbConfig::CONFIG['host_os']
   if host =~ /darwin/
-    cpus = `sysctl -n hw.ncpu`.to_i / 2
+    cpus = `sysctl -n hw.ncpu`.to_i / 4
     memory = `sysctl -n hw.memsize`.to_i / 1024 / 1024 / 4
   elsif host =~ /linux/
-    cpus = `nproc`.to_i / 2
+    cpus = `nproc`.to_i / 4
     memory = `grep 'MemTotal' /proc/meminfo | sed -e 's/MemTotal://' -e 's/ kB//'`.to_i / 1024 / 4
   else
     cpus = 2
@@ -62,11 +64,11 @@ Vagrant.configure(2) do |config|
 
   # Configure vm to use host ssh keys
 
-  # config.vm.provision "shell", inline: <<-SHELL
-  #   sudo apt-get update
-  #   sudo apt-get install -y git
-  #   mkdir -p ~/.ssh
-  #   chmod 700 ~/.ssh
-  #   ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-  # SHELL
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo apt-get update
+    sudo apt-get install -y git
+    mkdir -p ~/.ssh
+    chmod 700 ~/.ssh
+    ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+  SHELL
 end
