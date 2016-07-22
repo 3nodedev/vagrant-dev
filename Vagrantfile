@@ -2,13 +2,12 @@
 # vi: set ft=ruby :
 
 Vagrant.configure(2) do |config|
-  config.vm.box = 'boxcutter/ubuntu1404'
+  config.vm.box = 'boxcutter/ubuntu1604'
   config.ssh.forward_agent = true
 
   config.ssh.shell = %{bash -c 'BASH_ENV=/etc/profile exec bash'}
 
   # Required for NFS to work, pick any local IP
-  # config.vm.network :private_network, type: "dhcp"
   config.vm.network :private_network, ip: "192.168.33.121"
 
   # config.vm.network "forwarded_port", guest: 80, host: 8080

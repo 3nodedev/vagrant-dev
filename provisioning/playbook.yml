@@ -8,7 +8,7 @@
    pg_hba_additions:
     - host all all 0.0.0.0/0 trust
    pg_listen_all: True
-   node_version: v5.10.1
+   node_version: v6.3.1
 
   tasks:
   - name: apt cache
